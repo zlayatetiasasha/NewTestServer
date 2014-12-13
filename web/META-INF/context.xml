@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Context antiJARLocking="true" path="/TestServer">
+<Resource name="jdbc/TestServer" auth="Container"
+    type="javax.sql.DataSource" maxActive="100" 
+    autoReconnect="true"
+    maxIdle="10" maxWait="10000"
+    username="root" 
+    password="zlayatetiasasha"
+    driverClassName="com.mysql.jdbc.Driver"
+    removeAbandoned="true"  
+    logAbandoned="true"  
+    removeAbandonedTimeout="60"
+    url="jdbc:mysql://localhost:3306/testingdb?zeroDateTimeBehavior=convertToNull"/>
+</Context> 

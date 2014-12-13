@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-configuration PUBLIC "-//Hibernate/Hibernate Configuration DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-configuration-3.0.dtd">
+<hibernate-configuration>
+  <session-factory>
+    <property name="hibernate.dialect">org.hibernate.dialect.DerbyDialect</property>
+    <property name="hibernate.connection.driver_class">com.mysql.jdbc.Driver</property>
+    <property name="hibernate.connection.url">jdbc:mysql://localhost:3306/testingsrv1?zeroDateTimeBehavior=convertToNull</property>
+    <property name="hibernate.connection.username">root</property>
+    <property name="hibernate.connection.password">zlayatetiasasha</property>
+    <property name="hibernate.show_sql">true</property>
+    <property name="hibernate.current_session_context_class">thread</property>
+    <property name="hibernate.query.factory.class">org.hibernate.hql.classis.ClassicQueryTranslatorFactory</property>
+    <mapping class="test.panels.LogTeacher"/>
+    <mapping class="test.panels.Teacher"/>
+    <mapping class="test.panels.Test"/>
+    <mapping class="test.panels.Question"/>
+    <mapping class="test.panels.Statistics"/>
+    <mapping class="test.panels.Answer"/>
+    <mapping class="test.panels.QuestionType"/>
+    <mapping class="test.panels.AnswersStudent"/>
+    <mapping class="test.panels.AnsweredTest"/>
+    <mapping class="test.panels.Student"/>
+  </session-factory>
+</hibernate-configuration>

@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app version="3.0" xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd">
+    <session-config>
+        <session-timeout>
+            30
+        </session-timeout>
+    </session-config>
+    <welcome-file-list>
+        <welcome-file>index.jsp</welcome-file>
+    </welcome-file-list>
+    
+    <servlet>
+    <servlet-name>LoginServlet</servlet-name>
+    <servlet-class>test.panels.LoginServlet</servlet-class>
+    </servlet>
+    
+    <servlet>
+    <servlet-name>TestServiceImpl</servlet-name>
+    <servlet-class>test.panels.TestServiceImpl</servlet-class>
+    </servlet>
+    
+    <servlet>
+    <servlet-name>TestServiceTeacherImpl</servlet-name>
+    <servlet-class>test.panels.TestServiceTeacherImpl</servlet-class>
+    </servlet>
+    
+     <servlet>
+    <servlet-name>TestStudentServiceImpl</servlet-name>
+    <servlet-class>test.panels.TestStudentServiceImpl</servlet-class>
+    </servlet>
+    
+    <servlet>
+    <servlet-name>TestUpdateServiceImpl</servlet-name>
+    <servlet-class>test.panels.TestUpdateServiceImpl</servlet-class>
+    </servlet>
+    
+    <servlet>
+    <servlet-name>TestFindServiceImpl</servlet-name>
+    <servlet-class>test.panels.TestFindServiceImpl</servlet-class>
+    </servlet>
+    
+     <servlet>
+    <servlet-name>TestDeleteServiceImpl</servlet-name>
+    <servlet-class>test.panels.TestDeleteServiceImpl</servlet-class>
+    </servlet>
+    
+    <servlet>
+    <servlet-name>TestStatisticsServiceImpl</servlet-name>
+    <servlet-class>test.panels.TestStatisticsServiceImple</servlet-class>
+    </servlet>
+    
+    
+    
+    
+  <servlet-mapping>
+    <servlet-name>LoginServlet</servlet-name>
+    <url-pattern>/LoginServlet</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>TestServiceImpl</servlet-name>
+    <url-pattern>/TestServiceImpl</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>TestServiceTeacherImpl</servlet-name>
+    <url-pattern>/TestServiceTeacherImpl</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>TestStudentServiceImpl</servlet-name>
+    <url-pattern>/TestStudentServiceImpl</url-pattern>
+  </servlet-mapping>
+
+<servlet-mapping>
+    <servlet-name>TestUpdateServiceImpl</servlet-name>
+    <url-pattern>/TestUpdateServiceImpl</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>TestFindServiceImpl</servlet-name>
+    <url-pattern>/TestFindServiceImpl</url-pattern>
+  </servlet-mapping>
+    
+  <servlet-mapping>
+    <servlet-name>TestDeleteServiceImpl</servlet-name>
+    <url-pattern>/TestDeleteServiceImpl</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>TestStatisticsServiceImpl</servlet-name>
+    <url-pattern>/TestStatisticsServiceImpl</url-pattern>
+  </servlet-mapping>
+    
+ <resource-ref>
+        <res-ref-name>jdbc/TestServer</res-ref-name>
+        <res-type>javax.sql.DataSource</res-type>
+        <res-auth>Container</res-auth>
+    </resource-ref>
+    
+</web-app>
