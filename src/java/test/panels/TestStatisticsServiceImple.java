@@ -215,11 +215,13 @@ public class TestStatisticsServiceImple extends HessianServlet implements TestSt
     }
 
     //PRIVATE sector
+    //HOW TO CALCULATE THE RESULT?????
     private BigInteger calculateResult(Test test, AnsweredTest answeredTest) {
-        List<Question> questionsAnswered = answeredTest.getTest().getQuestions();
+        BigInteger result = null;
+        /*List<Question> questionsAnswered = answeredTest.getTest().getQuestions();
         List<Question> questionsRight = test.getQuestions();
 
-        BigInteger result = null;
+        
         Set<BigInteger> ids = new HashSet<BigInteger>();
         Map<BigInteger, Question> rightMap = new HashMap<>();
         Map<BigInteger, Question> answeredMap = new HashMap<>();
