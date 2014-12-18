@@ -485,12 +485,12 @@ public class TestStatisticsServiceImple extends HessianServlet implements TestSt
             while (rs.next()) {
                 BigInteger answ_id = BigInteger.valueOf(rs.getLong("answer_id"));
                 Answer a = null;
-                if (answ_id == null) {
+                System.out.println("answ" + answ_id);
+                if (answ_id == null || answ_id.equals(BigInteger.valueOf(0L))) {
                     a = new Answer(rs.getString("answer_text"), question_id);
                     System.out.println("text=" + a.getAnsweredText());
                 } else {
                     a = getAnswerByID(answ_id, conn);
-                    System.out.println("id=" + a.getId());
 
                 }
                 answers.add(a);
