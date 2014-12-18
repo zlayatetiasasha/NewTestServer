@@ -42,7 +42,7 @@ public class TestStatisticsServiceImple extends HessianServlet implements TestSt
         }
     }
 
-    //returns id of registered answeredTest
+    //Main method to add students answers: returns id of registered answeredTest
     public BigInteger registerAnsweredTest(AnsweredTest answt) {
         BigInteger id = null;
         boolean temp = false;
@@ -117,8 +117,40 @@ public class TestStatisticsServiceImple extends HessianServlet implements TestSt
     }
 
     public List<AnswersStudent> getAllAnsweredInfoForTest(BigInteger test_id) {
-        List<AnswersStudent> answersStudent = null;
+        List<AnswersStudent> answersStudent = new ArrayList<AnswersStudent>();
+        Connection conn = null;
+        PreparedStatement pst = null;
+        ResultSet rs = null;
+        try {
+            synchronized (ds) {
+                conn = ds.getConnection();
+            }
 
+            pst = conn.prepareStatement("SELECT * from answersstudent where test_id=?", Statement.RETURN_GENERATED_KEYS);
+            pst.setLong(1, test_id.longValue());
+            rs = pst.executeQuery();
+            while (rs.next()) {
+                Test t = getTestById(test_id, conn);
+                BigInteger q_id = BigInteger.valueOf(rs.getLong("question_id"));
+                Question q = getQuestionById(q_id, conn);
+                BigInteger student_id = BigInteger.valueOf(rs.getLong("student_Id"));
+                Student st = getStudentById(student_id, conn);
+                List<Answer> ans = getAnswersofStudentForQuestionAndTest(q.getId(), t.getId(), student_id, conn);
+
+                AnswersStudent as = new AnswersStudent(st, t, q, ans);
+                answersStudent.add(as);
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        } finally {
+            try {
+                pst.close();
+                rs.close();
+                conn.close();
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
         return answersStudent;
     }
 
@@ -147,7 +179,7 @@ public class TestStatisticsServiceImple extends HessianServlet implements TestSt
                             pst = conn.prepareStatement("INSERT INTO answersstudent (student_id, test_id, question_id, answer_text, id_answered_test) "
                                     + "VALUES (?, ?, ?, ?, ?);", Statement.RETURN_GENERATED_KEYS);
 
-                            pst.setString(4, answer.getText());
+                            pst.setString(4, answer.getAnsweredText());
 
                         } else {
                             pst = conn.prepareStatement("INSERT INTO answersstudent (student_id, test_id, question_id, answer_id, id_answered_test) "
@@ -162,8 +194,11 @@ public class TestStatisticsServiceImple extends HessianServlet implements TestSt
                         pst.setLong(3, question.getId().longValue());
                         pst.setLong(5, t.getId().longValue());
                         pst.executeUpdate();
-                        AnswersStudent answst = new AnswersStudent(student, test, question, answer);
-                        answersStudent.add(answst);
+                        ResultSet rs = pst.getGeneratedKeys();
+                        if (rs != null && rs.next()) {
+                            AnswersStudent answst = new AnswersStudent(BigInteger.valueOf(rs.getLong(1)));
+                            answersStudent.add(answst);
+                        }
 
                     }
                 }
@@ -219,55 +254,55 @@ public class TestStatisticsServiceImple extends HessianServlet implements TestSt
     private BigInteger calculateResult(Test test, AnsweredTest answeredTest) {
         BigInteger result = null;
         /*List<Question> questionsAnswered = answeredTest.getTest().getQuestions();
-        List<Question> questionsRight = test.getQuestions();
+         List<Question> questionsRight = test.getQuestions();
 
         
-        Set<BigInteger> ids = new HashSet<BigInteger>();
-        Map<BigInteger, Question> rightMap = new HashMap<>();
-        Map<BigInteger, Question> answeredMap = new HashMap<>();
+         Set<BigInteger> ids = new HashSet<BigInteger>();
+         Map<BigInteger, Question> rightMap = new HashMap<>();
+         Map<BigInteger, Question> answeredMap = new HashMap<>();
 
-        for (Question qright : questionsRight) {
-            rightMap.put(qright.getId(), qright);
-            ids.add(qright.getId());
-        }
+         for (Question qright : questionsRight) {
+         rightMap.put(qright.getId(), qright);
+         ids.add(qright.getId());
+         }
 
-        for (Question qanswered : questionsAnswered) {
-            answeredMap.put(qanswered.getId(), qanswered);
-            ids.add(qanswered.getId());
-        }
-        int i = 0;
+         for (Question qanswered : questionsAnswered) {
+         answeredMap.put(qanswered.getId(), qanswered);
+         ids.add(qanswered.getId());
+         }
+         int i = 0;
 
-        for (BigInteger id : ids) {
-            Question qr = rightMap.get(id);
-            Question qa = answeredMap.get(id);
+         for (BigInteger id : ids) {
+         Question qr = rightMap.get(id);
+         Question qa = answeredMap.get(id);
             
-            List<Answer> answersRight = qr.getAnswers();
-            List<Answer> answerscheck = qa.getAnswers();
+         List<Answer> answersRight = qr.getAnswers();
+         List<Answer> answerscheck = qa.getAnswers();
 
-            Set<BigInteger> ansids = new HashSet<BigInteger>();
-            Map<BigInteger, Answer> answerrightMap = new HashMap<>();
-            Map<BigInteger, Answer> answeransweredMap = new HashMap<>();
+         Set<BigInteger> ansids = new HashSet<BigInteger>();
+         Map<BigInteger, Answer> answerrightMap = new HashMap<>();
+         Map<BigInteger, Answer> answeransweredMap = new HashMap<>();
 
-            for (Answer aright : answersRight) {
-                answerrightMap.put(aright.getId(), aright);
-                ansids.add(aright.getId());
-            }
+         for (Answer aright : answersRight) {
+         answerrightMap.put(aright.getId(), aright);
+         ansids.add(aright.getId());
+         }
 
-            for (Answer acheck : answerscheck) {
-                answeransweredMap.put(acheck.getId(), acheck);
-                ansids.add(acheck.getId());
-            }
+         for (Answer acheck : answerscheck) {
+         answeransweredMap.put(acheck.getId(), acheck);
+         ansids.add(acheck.getId());
+         }
             
-            for(BigInteger ansid : ansids){
+         for(BigInteger ansid : ansids){
                
-            // Answer ar=answerrightMap.get(ansid);
-            // Answer ac=answeransweredMap.get(ansid);
+         // Answer ar=answerrightMap.get(ansid);
+         // Answer ac=answeransweredMap.get(ansid);
              
-            }
+         }
 
-        }
+         }
 
-        /*   for (BigInteger id   : ids) {
+         /*   for (BigInteger id   : ids) {
          request = rightMap.get(id);
          response = answeredMap.get(id);
          // now matching
@@ -291,10 +326,7 @@ public class TestStatisticsServiceImple extends HessianServlet implements TestSt
             if (rs != null && rs.next()) {
                 //get Questions with answers for test
                 List<Question> questions = getListQuestionsForTest(conn, id);
-                System.out.println("created questions for test" + questions.size());
-
                 t = createTestObject(rs, questions);
-                System.out.println("got test:" + t.getTitle());
 
             } else {
                 System.out.println("There is no such test!");
@@ -399,6 +431,139 @@ public class TestStatisticsServiceImple extends HessianServlet implements TestSt
             }
         }
         return answers;
+
+    }
+
+    private Question getQuestionById(BigInteger question_id, Connection conn) {
+        boolean temp = false;
+        Question question = null;
+
+        PreparedStatement pst = null;
+        ResultSet rs = null;
+        try {
+
+            pst = conn.prepareStatement("SELECT * from question where id=?", Statement.RETURN_GENERATED_KEYS);
+            pst.setLong(1, question_id.longValue());
+            rs = pst.executeQuery();
+
+            //If test is found
+            if (rs != null && rs.next()) {
+                //get Questions with answers for test
+                question = new Question(BigInteger.valueOf(rs.getLong("id")), BigInteger.valueOf(rs.getLong("question_type_id")),
+                        BigInteger.valueOf(rs.getLong("test_id")), rs.getString("text"), rs.getInt("value"));
+
+            } else {
+                System.out.println("There is no such test!");
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        } finally {
+            try {
+                pst.close();
+                rs.close();
+
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
+        return question;
+
+    }
+
+    private List<Answer> getAnswersofStudentForQuestionAndTest(BigInteger question_id, BigInteger test_id, BigInteger student_id, Connection conn) {
+        PreparedStatement pst = null;
+        ResultSet rs = null;
+        List<Answer> answers = new ArrayList<Answer>();
+        try {
+            pst = conn.prepareStatement("SELECT * from answersstudent where question_id=? and test_id=? and student_id=?", Statement.RETURN_GENERATED_KEYS);
+            pst.setLong(1, question_id.longValue());
+            pst.setLong(2, test_id.longValue());
+            pst.setLong(3, student_id.longValue());
+            rs = pst.executeQuery();
+            //make a list of answers
+            answers = new ArrayList<Answer>();
+            while (rs.next()) {
+                BigInteger answ_id = BigInteger.valueOf(rs.getLong("answer_id"));
+                Answer a = null;
+                if (answ_id == null) {
+                    a = new Answer(rs.getString("answer_text"), question_id);
+                    System.out.println("text=" + a.getAnsweredText());
+                } else {
+                    a = getAnswerByID(answ_id, conn);
+                    System.out.println("id=" + a.getId());
+
+                }
+                answers.add(a);
+            }
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        } finally {
+            try {
+                pst.close();
+                rs.close();
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
+        return answers;
+
+    }
+
+    private Student getStudentById(BigInteger student_id, Connection conn) {
+        PreparedStatement pst = null;
+        ResultSet rs = null;
+        Student st = null;
+        try {
+            pst = conn.prepareStatement("SELECT * from student where id=?", Statement.RETURN_GENERATED_KEYS);
+            pst.setLong(1, student_id.longValue());
+            rs = pst.executeQuery();
+            //make a list of answers
+
+            while (rs.next()) {
+                st = new Student(student_id, rs.getString("name"), rs.getString("email"),
+                        rs.getInt("course"), rs.getString("grnum"), rs.getString("faculty"));
+            }
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        } finally {
+            try {
+                pst.close();
+                rs.close();
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
+        return st;
+
+    }
+
+    private Answer getAnswerByID(BigInteger answ_id, Connection conn) {
+        PreparedStatement pst = null;
+        ResultSet rs = null;
+        Answer a = null;
+        try {
+            pst = conn.prepareStatement("SELECT * from answer where id=?", Statement.RETURN_GENERATED_KEYS);
+            pst.setLong(1, answ_id.longValue());
+            rs = pst.executeQuery();
+            //make a list of answers
+
+            while (rs.next()) {
+                a = new Answer(answ_id, BigInteger.valueOf(rs.getLong("question_id")), rs.getInt("isRight"), rs.getString("text"));
+            }
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        } finally {
+            try {
+                pst.close();
+                rs.close();
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
+        return a;
 
     }
 
