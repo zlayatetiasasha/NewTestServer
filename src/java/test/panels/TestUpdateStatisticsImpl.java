@@ -11,4 +11,6 @@ package test.panels;
  */
 public class TestUpdateStatisticsImpl {
     
+    
+    
 }
