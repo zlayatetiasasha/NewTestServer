@@ -94,15 +94,15 @@ public class TestUpdateServiceImpl extends HessianServlet implements TestUpdateS
 
                     pst2 = conn.prepareStatement(sq2);
                     pst2.setLong(1, t.getId().longValue());
-
+                    System.out.println("01");
                     pst2.setLong(2, questions.get(i).getQuestionTypeId().longValue());
-
+                    System.out.println("02");
                     pst2.setString(3, questions.get(i).getText());
-
+                    System.out.println("03");
                     pst2.setInt(4, questions.get(i).getValue());
-
+                    System.out.println("04");
                     pst2.setLong(5, questions.get(i).getId().longValue());
-
+                    System.out.println("05");
                     pst2.executeUpdate();
 
                     List<Answer> answers = questions.get(i).getAnswers();
@@ -115,15 +115,15 @@ public class TestUpdateServiceImpl extends HessianServlet implements TestUpdateS
                             sq3 += "WHERE id = ?";
 
                             pst3 = conn.prepareStatement(sq3);
-
+                            System.out.println("1");
                             pst3.setLong(1, questions.get(i).getId().longValue());
-
+                            System.out.println("2");
                             pst3.setString(2, answers.get(j).getText());
-
+                            System.out.println("3");
                             pst3.setInt(3, answers.get(j).getIsRight());
-
+                            System.out.println("4");
                             pst3.setLong(4, answers.get(j).getId().longValue());
-
+                            System.out.println("5");
                             pst3.executeUpdate();
                         }
                     }

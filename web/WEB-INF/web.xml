@@ -49,6 +49,11 @@
     <servlet-class>test.panels.TestStatisticsServiceImple</servlet-class>
     </servlet>
     
+    <servlet>
+    <servlet-name>TestGetStatisticsServiceImpl</servlet-name>
+    <servlet-class>test.panels.TestGetStatisticsServiceImpl</servlet-class>
+    </servlet>
+    
     
     
     
@@ -91,6 +96,12 @@
     <servlet-name>TestStatisticsServiceImpl</servlet-name>
     <url-pattern>/TestStatisticsServiceImpl</url-pattern>
   </servlet-mapping>
+  
+   <servlet-mapping>
+    <servlet-name>TestGetStatisticsServiceImpl</servlet-name>
+    <url-pattern>/TestGetStatisticsServiceImpl</url-pattern>
+  </servlet-mapping>
+  
     
  <resource-ref>
         <res-ref-name>jdbc/TestServer</res-ref-name>

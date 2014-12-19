@@ -161,6 +161,53 @@ public class TestStatisticsServiceImple extends HessianServlet implements TestSt
         return results;
     }
 
+    public List<AnswersStudent> getAllAnswersForTestForStudent(BigInteger student_id, BigInteger test_id) {
+        List<AnswersStudent> result = null;
+        Connection conn = null;
+        PreparedStatement pst = null;
+        ResultSet rs = null;
+        try {
+            synchronized (ds) {
+                conn = ds.getConnection();
+            }
+
+            pst = conn.prepareStatement("SELECT * from answersstudent where test_id=? and student_id=?", Statement.RETURN_GENERATED_KEYS);
+            pst.setLong(1, test_id.longValue());
+            pst.setLong(1, student_id.longValue());
+            rs = pst.executeQuery();
+            Student st = null;
+            Test t = null;
+            while (rs.next()) {
+                st = new Student(student_id);
+                t = new Test(test_id);
+                while (rs.next()) {
+                    Question q = new Question(BigInteger.valueOf(rs.getLong("question_id")));
+                    BigInteger answer_id = BigInteger.valueOf(rs.getLong("answer_id"));
+                    Answer a = null;
+                    if (answer_id == null || answer_id.intValue() == 0) {
+                        a = new Answer(rs.getString("answered_text"), q.getId());
+                    } else {
+                        a = new Answer(answer_id);
+                    }
+                    // AnswersStudent as = new AnswersStudent(st,t,q,)
+                }
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        } finally {
+            try {
+                pst.close();
+                rs.close();
+                conn.close();
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
+
+        return result;
+
+    }
+
     //PRIVATE SECTOR
     private List<AnswersStudent> addAnswersStudent(AnsweredTest t, Connection conn) {
         PreparedStatement pst = null;
@@ -219,95 +266,67 @@ public class TestStatisticsServiceImple extends HessianServlet implements TestSt
     }
 
     private BigInteger calculateAndUpdateResultForAnsweredTest(List<AnswersStudent> answersStudent, AnsweredTest answt, Connection conn) {
-        /*    PreparedStatement pst = null;
-         ResultSet rs = null;*/
-        BigInteger result = null;
+        PreparedStatement pst = null;
+        ResultSet rs = null;
+        PreparedStatement pst1 = null;
+        ResultSet rs1 = null;
+        Integer result = null;
         try {
             Test test = getTestById(answt.getTest().getId(), conn);
             result = calculateResult(test, answt);
-
-            /*  pst = conn.prepareStatement("SELECT result from answeredtest where id=?", Statement.RETURN_GENERATED_KEYS);
-             //  pst.setLong(1, answd_test_id.longValue());
-             rs = pst.executeQuery();
-             while (rs.next()) {
-             //   result = BigInteger.valueOf(rs.getLong("result"));    
-             }*/
-            System.out.println("got test here!");
+            pst1 = conn.prepareStatement("UPDATE answeredtest set result=? where id=?");
+            System.out.println("result=" + result);
+            pst1.setLong(1, result.longValue());
+            pst1.setLong(2, answt.getId().longValue());
+            pst1.executeUpdate();
 
         } catch (Exception ex) {
             ex.printStackTrace();
         } finally {
             try {
-                /*  pst.close();
-                 rs.close();*/
+                pst1.close();
 
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
         }
 
-        return result;
+        return BigInteger.valueOf(result.intValue());
     }
 
     //PRIVATE sector
     //HOW TO CALCULATE THE RESULT?????
-    private BigInteger calculateResult(Test test, AnsweredTest answeredTest) {
-        BigInteger result = null;
-        /*List<Question> questionsAnswered = answeredTest.getTest().getQuestions();
-         List<Question> questionsRight = test.getQuestions();
+    private Integer calculateResult(Test test, AnsweredTest answeredTest) {
 
-        
-         Set<BigInteger> ids = new HashSet<BigInteger>();
-         Map<BigInteger, Question> rightMap = new HashMap<>();
-         Map<BigInteger, Question> answeredMap = new HashMap<>();
+        List<Question> questionsAnswered = answeredTest.getTest().getQuestions();
+        List<Question> questionsRight = test.getQuestions();
+        Map<BigInteger, BigInteger> rightMap = new HashMap<>();
 
-         for (Question qright : questionsRight) {
-         rightMap.put(qright.getId(), qright);
-         ids.add(qright.getId());
-         }
+        for (int i = 0; i < questionsRight.size(); i++) {
+            for (int j = 0; j < questionsRight.get(i).getAnswers().size(); j++) {
+                if (questionsRight.get(i).getAnswers().get(j).getIsRight() == 1) {
+                    rightMap.put(BigInteger.valueOf(Long.valueOf(i)),
+                            questionsRight.get(i).getAnswers().get(j).getId());
+                }
+            }
+        }
 
-         for (Question qanswered : questionsAnswered) {
-         answeredMap.put(qanswered.getId(), qanswered);
-         ids.add(qanswered.getId());
-         }
-         int i = 0;
+        Integer score = 0;
 
-         for (BigInteger id : ids) {
-         Question qr = rightMap.get(id);
-         Question qa = answeredMap.get(id);
-            
-         List<Answer> answersRight = qr.getAnswers();
-         List<Answer> answerscheck = qa.getAnswers();
+        for (int i = 0; i < questionsAnswered.size(); i++) {
+            for (int j = 0; j < questionsAnswered.get(i).getAnswers().size(); j++) {
+                for (Map.Entry<BigInteger, BigInteger> entry : rightMap.entrySet()) {
+                    System.out.println("question answered.getAnswers=" + questionsAnswered.get(i).getAnswers().get(j).getId());
+                    System.out.println("entry value=" + entry.getValue());
+                    if (questionsAnswered.get(i).getAnswers().get(j).getId() == entry.getValue()) {
+                        score += (questionsRight.get((int) entry.getKey().longValue()).getValue()).intValue();
+                    }
+                }
+            }
+        }
+        System.out.println("score=" + score);
+        return score;
 
-         Set<BigInteger> ansids = new HashSet<BigInteger>();
-         Map<BigInteger, Answer> answerrightMap = new HashMap<>();
-         Map<BigInteger, Answer> answeransweredMap = new HashMap<>();
-
-         for (Answer aright : answersRight) {
-         answerrightMap.put(aright.getId(), aright);
-         ansids.add(aright.getId());
-         }
-
-         for (Answer acheck : answerscheck) {
-         answeransweredMap.put(acheck.getId(), acheck);
-         ansids.add(acheck.getId());
-         }
-            
-         for(BigInteger ansid : ansids){
-               
-         // Answer ar=answerrightMap.get(ansid);
-         // Answer ac=answeransweredMap.get(ansid);
-             
-         }
-
-         }
-
-         /*   for (BigInteger id   : ids) {
-         request = rightMap.get(id);
-         response = answeredMap.get(id);
-         // now matching
-         }*/
-        return result;
     }
 
     private Test getTestById(BigInteger id, Connection conn) {
